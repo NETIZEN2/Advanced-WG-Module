@@ -1,0 +1,8 @@
+{
+  "name": "OpsCanvas: Interactive Wargame Map",
+  "description": "An interactive mission planning tool that allows users to create and place defense entities on a wargame map. Visualize entity capabilities with range rings and strategize for Red vs. Blue force engagements.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "prompt": ""
+}
