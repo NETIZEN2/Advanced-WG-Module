@@ -13,4 +13,6 @@ connection or any external AI services or API keys.
 1. Install dependencies:
    `npm install`
 2. Run the app:
+2. Set the `API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
    `npm run dev`
