@@ -1,10 +1,9 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
-import type { LibraryEntity, BaseEntity, Force, EntityType, Sensor, Weapon } from '../types';
+import React, { useState, useEffect } from 'react';
+import type { LibraryEntity } from '../types';
 import { SENSOR_TYPES, WEAPON_TYPES, GUIDANCE_TYPES, EW_TYPES, EntityType as EntityTypesEnum, Force as ForceEnum } from '../types';
 import { ICON_IDS, CreatorIdentityIcon, CreatorSensorIcon, CreatorWeaponIcon, WaypointPathIcon, DatalinkIcon, EWIcon, SignatureIcon } from './icons';
 import { EntityIcon } from './EntityIcon';
-import { suggestEntityDetails } from '../services/geminiService';
 
 const defaultEntity: Omit<LibraryEntity, 'id'> = {
   name: '', force: ForceEnum.BLUE, type: EntityTypesEnum.AIR, icon: 'jet-1',
@@ -31,48 +30,20 @@ const steps = [
 export const EntityCreatorModal: React.FC<ModalProps> = ({ isOpen, onClose, onSave, entity }) => {
   const [currentStep, setCurrentStep] = useState('identity');
   const [formData, setFormData] = useState<Omit<LibraryEntity, 'id'> | LibraryEntity>(entity || defaultEntity);
-  const [isAiLoading, setIsAiLoading] = useState(false);
 
   useEffect(() => {
     setFormData(entity || defaultEntity);
     setCurrentStep('identity');
   }, [entity, isOpen]);
 
-  const handleInputChange = (field: keyof BaseEntity, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-  
   const handleSave = () => { onSave(formData); };
-  
-  const handleAiSuggest = async () => {
-    if (!formData.name || !formData.type) return;
-    setIsAiLoading(true);
-    try {
-        const suggestions = await suggestEntityDetails(formData.type, formData.name);
-        setFormData(prev => {
-            const newSensors = suggestions.sensors?.map((s: any, i: number) => ({...s, id: `sensor-${Date.now()}-${i}`})) || [];
-            const newWeapons = suggestions.weapons?.map((w: any, i: number) => ({...w, id: `weapon-${Date.now()}-${i}`})) || [];
-            return {
-                ...prev,
-                ...suggestions,
-                sensors: newSensors,
-                weapons: newWeapons,
-            };
-        });
-    } catch (error) {
-        console.error(error);
-        alert("AI suggestion failed. Please check the console for details.");
-    } finally {
-        setIsAiLoading(false);
-    }
-  };
 
 
   if (!isOpen) return null;
 
   const renderCurrentStep = () => {
     switch (currentStep) {
-      case 'identity': return <IdentityStep formData={formData} onUpdate={setFormData} onAiSuggest={handleAiSuggest} isAiLoading={isAiLoading}/>;
+      case 'identity': return <IdentityStep formData={formData} onUpdate={setFormData} />;
       // Add other step components here later
       default: return <div className="p-6 text-center text-slate-500"><p>This step has not been implemented yet.</p></div>;
     }
@@ -111,7 +82,7 @@ export const EntityCreatorModal: React.FC<ModalProps> = ({ isOpen, onClose, onSa
   );
 };
 
-const IdentityStep = ({ formData, onUpdate, onAiSuggest, isAiLoading }: { formData: any, onUpdate: Function, onAiSuggest: () => void, isAiLoading: boolean }) => {
+const IdentityStep = ({ formData, onUpdate }: { formData: any, onUpdate: Function }) => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-6">
@@ -150,18 +121,6 @@ const IdentityStep = ({ formData, onUpdate, onAiSuggest, isAiLoading }: { formDa
        <div>
             <label htmlFor="description" className="block text-sm font-medium text-slate-700 mb-1">Description</label>
             <textarea id="description" value={formData.description || ''} onChange={e => onUpdate({ ...formData, description: e.target.value })} rows={4} className="w-full border-slate-300 rounded-md shadow-sm text-sm"></textarea>
-       </div>
-       <div className="border-t border-slate-200 pt-6">
-            <h3 className="text-md font-semibold text-slate-700">AI Suggestions</h3>
-            <p className="text-sm text-slate-500 mt-1 mb-3">Use AI to populate the description and common systems for this entity type. Requires an entity name and type to be set.</p>
-            <button onClick={onAiSuggest} disabled={!formData.name || !formData.type || isAiLoading} className="flex items-center justify-center space-x-2 px-4 py-2 bg-slate-600 text-white rounded-md font-semibold hover:bg-slate-700 disabled:bg-slate-300 transition-colors shadow-sm">
-                {isAiLoading ? (
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" /></svg>
-                )}
-                <span>{isAiLoading ? 'Generating...' : 'Suggest Details'}</span>
-            </button>
        </div>
     </div>
   );
