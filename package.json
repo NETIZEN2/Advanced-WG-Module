@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node tests/index-css.test.js && node tests/mission-analysis-worker.test.js && node --loader ./tests/ts-loader.mjs ./tests/worker-fallback.test.js"
+    "test": "node tests/index-css.test.js && node tests/mission-analysis-worker.test.js && node --loader ./tests/ts-loader.mjs ./tests/worker-fallback.test.js && node --loader ./tests/ts-loader.mjs ./tests/app-render.test.tsx"
   },
   "dependencies": {
     "react-dom": "^18.2.0",
