@@ -43,6 +43,10 @@ export const useMissionAnalysisWorker = (
       dispatch({ type: 'ANALYSIS_ERROR', payload: { message: `Worker failed: ${error.message}` } });
       setWorkerInitFailed(true);
     };
+    missionAnalysisWorker.onmessageerror = (error) => {
+      dispatch({ type: 'ANALYSIS_ERROR', payload: { message: `Worker message error: ${error.message}` } });
+      setWorkerInitFailed(true);
+    };
   }, [missionAnalysisWorker, state.placedEntities, dispatch]);
 
   useEffect(() => {
