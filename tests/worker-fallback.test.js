@@ -12,6 +12,7 @@ const dom = new JSDOM('<!doctype html><html><body><div id="root"></div></body></
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 globalThis.navigator = dom.window.navigator;
+globalThis.localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
 
 // Make Worker throw during construction
 globalThis.Worker = class {

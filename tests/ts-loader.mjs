@@ -18,6 +18,13 @@ export async function resolve(specifier, context, defaultResolve) {
         const tsxUrl = new URL(specifier + '.tsx', context.parentURL).href;
         return { url: tsxUrl, shortCircuit: true };
       }
+      let url = new URL(specifier + '.ts', context.parentURL);
+      try {
+        await readFile(url);
+      } catch {
+        url = new URL(specifier + '.tsx', context.parentURL);
+      }
+      return { url: url.href, shortCircuit: true };
     }
     throw err;
   }
