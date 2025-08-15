@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import type { AppState, AppAction } from '../state/appState';
 import type { MissionThread } from '../types';
 
@@ -9,10 +9,14 @@ export const useMissionAnalysisWorker = (
   const [missionAnalysisWorker, setMissionAnalysisWorker] = useState<Worker | null>(null);
   const [workerInitFailed, setWorkerInitFailed] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     let worker: Worker | null = null;
     try {
-      worker = new Worker(new URL('../services/missionAnalysis.worker.ts', import.meta.url), { type: 'module' });
+      const WorkerCtor = (globalThis as any).Worker;
+      if (!WorkerCtor) {
+        throw new Error('Web Workers are not supported');
+      }
+      worker = new WorkerCtor(new URL('../services/missionAnalysis.worker.ts', import.meta.url), { type: 'module' });
       setMissionAnalysisWorker(worker);
     } catch (error) {
       console.error('Failed to create mission analysis worker:', error);
@@ -35,8 +39,14 @@ export const useMissionAnalysisWorker = (
         dispatch({ type: 'FINISH_ANALYSIS', payload: { threads: data as MissionThread[], placedEntities: state.placedEntities } });
       }
     };
-    missionAnalysisWorker.onerror = (error) =>
+    missionAnalysisWorker.onerror = (error) => {
       dispatch({ type: 'ANALYSIS_ERROR', payload: { message: `Worker failed: ${error.message}` } });
+      setWorkerInitFailed(true);
+    };
+    missionAnalysisWorker.onmessageerror = (error) => {
+      dispatch({ type: 'ANALYSIS_ERROR', payload: { message: `Worker message error: ${error.message}` } });
+      setWorkerInitFailed(true);
+    };
   }, [missionAnalysisWorker, state.placedEntities, dispatch]);
 
   useEffect(() => {

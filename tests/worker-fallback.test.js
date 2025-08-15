@@ -11,7 +11,7 @@ const dom = new JSDOM('<!doctype html><html><body><div id="root"></div></body></
 
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
-globalThis.navigator = dom.window.navigator;
+Object.defineProperty(globalThis, 'navigator', { value: dom.window.navigator, configurable: true });
 globalThis.localStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
 
 // Make Worker throw during construction
