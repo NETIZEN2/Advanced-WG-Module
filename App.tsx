@@ -42,34 +42,21 @@ const App: React.FC = () => {
 
   useEffect(() => {
     let worker: Worker | null = null;
-    let objectUrl: string | null = null;
-
-    const createWorker = async () => {
-        try {
-            const workerScriptResponse = await fetch('./services/missionAnalysis.worker.ts');
-            if (!workerScriptResponse.ok) {
-                throw new Error(`Failed to fetch worker script: ${workerScriptResponse.statusText}`);
-            }
-            const workerScript = await workerScriptResponse.text();
-            const blob = new Blob([workerScript], { type: 'application/javascript' });
-            objectUrl = URL.createObjectURL(blob);
-            worker = new Worker(objectUrl, { type: 'module' });
-            setMissionAnalysisWorker(worker);
-        } catch (error) {
-            console.error("Failed to create mission analysis worker:", error);
-            dispatch({ type: 'ANALYSIS_ERROR', payload: { message: `Could not initialize analysis engine: ${(error as Error).message}` } });
-        }
-    };
-
-    createWorker();
+    try {
+      worker = new Worker(new URL('./services/missionAnalysis.worker.ts', import.meta.url), { type: 'module' });
+      setMissionAnalysisWorker(worker);
+    } catch (error) {
+      console.error('Failed to create mission analysis worker:', error);
+      dispatch({
+        type: 'ANALYSIS_ERROR',
+        payload: { message: `Could not initialize analysis engine: ${(error as Error).message}` }
+      });
+    }
 
     return () => {
-        if (worker) {
-            worker.terminate();
-        }
-        if (objectUrl) {
-            URL.revokeObjectURL(objectUrl);
-        }
+      if (worker) {
+        worker.terminate();
+      }
     };
   }, []);
 
