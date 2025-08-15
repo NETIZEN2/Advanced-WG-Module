@@ -61,7 +61,10 @@ export const SidebarLayout: React.FC<SidebarLayoutProps> = ({ onNewEntity, onEdi
   ].join(' ');
 
   return (
-    <div className={rootClasses}>
+    <div
+      className={rootClasses}
+      style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}
+    >
       <Sidebar
         width={sidebarWidth}
         isCollapsed={isSidebarCollapsed}
@@ -70,7 +73,10 @@ export const SidebarLayout: React.FC<SidebarLayoutProps> = ({ onNewEntity, onEdi
         onEditEntity={onEditEntity}
       />
       {!isSidebarCollapsed && <ResizeHandle onMouseDown={handleMouseDown} />}
-      <main className="flex-1 h-full min-w-0 relative">
+      <main
+        className="flex-1 h-full min-w-0 relative"
+        style={{ flex: 1, height: '100%', minWidth: 0, position: 'relative' }}
+      >
         {children}
       </main>
     </div>
