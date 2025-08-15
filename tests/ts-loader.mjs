@@ -10,6 +10,14 @@ export async function resolve(specifier, context, defaultResolve) {
       return { url, shortCircuit: true };
     }
     if (specifier.startsWith('.') && !specifier.endsWith('.js') && !specifier.endsWith('.ts') && !specifier.endsWith('.tsx')) {
+      try {
+        const tsUrl = new URL(specifier + '.ts', context.parentURL);
+        await readFile(tsUrl);
+        return { url: tsUrl.href, shortCircuit: true };
+      } catch {
+        const tsxUrl = new URL(specifier + '.tsx', context.parentURL).href;
+        return { url: tsxUrl, shortCircuit: true };
+      }
       let url = new URL(specifier + '.ts', context.parentURL);
       try {
         await readFile(url);
