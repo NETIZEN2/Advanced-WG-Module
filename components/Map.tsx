@@ -177,10 +177,10 @@ export const MapComponent = forwardRef<MapRef, MapComponentProps>(({
   const entityMap = useMemo(() => new Map(entities.map(e => [e.instanceId, e])), [entities]);
 
   return (
-    <div 
-        ref={mapWrapperRef} 
-        className="w-full h-full relative" 
-        style={{ backgroundColor: '#f8fafc' }}
+    <div
+        ref={mapWrapperRef}
+        className="w-full h-full relative"
+        style={{ width: '100%', height: '100%', position: 'relative', backgroundColor: '#f8fafc' }}
         onContextMenu={(e) => e.preventDefault()}
         onMouseMove={handleMouseMove}
     >
