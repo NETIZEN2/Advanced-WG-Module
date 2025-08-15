@@ -39,6 +39,7 @@ const App: React.FC = () => {
 
   // --- Mission Analysis Worker ---
   const [missionAnalysisWorker, setMissionAnalysisWorker] = useState<Worker | null>(null);
+  const [workerInitFailed, setWorkerInitFailed] = useState(false);
 
   useEffect(() => {
     let worker: Worker | null = null;
@@ -48,6 +49,7 @@ const App: React.FC = () => {
     } catch (error) {
       console.error('Failed to create mission analysis worker:', error);
       dispatch({ type: 'ANALYSIS_ERROR', payload: { message: `Could not initialize analysis engine: ${(error as Error).message}` } });
+      setWorkerInitFailed(true);
     }
     return () => {
       worker?.terminate();
@@ -232,6 +234,11 @@ const App: React.FC = () => {
         />
         {!isSidebarCollapsed && <ResizeHandle onMouseDown={handleMouseDown} />}
         <main className="flex-1 h-full min-w-0 relative">
+          {workerInitFailed && (
+            <div className="absolute inset-0 flex items-center justify-center bg-red-100 text-red-800 z-10">
+              Analysis engine unavailable.
+            </div>
+          )}
           <MapComponent
             ref={mapRef}
             missionAnalysisWorker={missionAnalysisWorker}
